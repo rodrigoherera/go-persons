@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-persons/db"
+	mid "go-persons/middleware"
 	"go-persons/models"
 	"go-persons/response"
 	resp "go-persons/response"
@@ -16,13 +17,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/julienschmidt/httprouter"
 )
-
-type claims struct {
-	ID string `json:"id"`
-	jwt.StandardClaims
-}
-
-var jwtKey = []byte("6B833C42246DA36D0DCC912DE9220DE4F6DD146321639B59AC4D1B9BD226A228")
 
 //AddPerson POST controller to add a new person
 func AddPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -183,7 +177,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	creds = models.Person{ID: uint(idInt)}
 
 	expirationTime := time.Now().Add(12 * time.Hour)
-	claims := &claims{
+	claims := &mid.Claims{
 		ID: string(creds.ID),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
@@ -192,7 +186,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(mid.JwtKey)
 	if err != nil {
 		response.Set(w, "El Token JWT es requerido!", 403).ReturnJSON()
 		log.Printf("Internal server error, error: %v", err)

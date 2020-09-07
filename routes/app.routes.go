@@ -7,12 +7,13 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// GetRouter .
+// GetRouter returns a composed router
 func GetRouter() *httprouter.Router {
 
 	MDLW := middleware.Chain(middleware.JwtAuthentication, middleware.CORS, middleware.JSONHeader)
 	router := httprouter.New()
 
+	//TODO - add exception to the middleware
 	router.GET("/v1/login/:id", ctrl.Login)
 	router.POST("/v1/person", ctrl.AddPerson)
 

@@ -11,10 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var jwtKey = []byte("6B833C42246DA36D0DCC912DE9220DE4F6DD146321639B59AC4D1B9BD226A228")
+var JwtKey = []byte("6B833C42246DA36D0DCC912DE9220DE4F6DD146321639B59AC4D1B9BD226A228")
 
-type claims struct {
-	Dni string `json:"Dni"`
+type Claims struct {
+	ID string `json:"id"`
 	jwt.StandardClaims
 }
 
@@ -43,10 +43,10 @@ func JwtAuthentication(next httprouter.Handle) httprouter.Handle {
 
 		tknStr := strings.TrimPrefix(c, "Bearer ")
 
-		claims := &claims{}
+		claims := &Claims{}
 
 		tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
+			return JwtKey, nil
 		})
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
@@ -66,7 +66,7 @@ func JwtAuthentication(next httprouter.Handle) httprouter.Handle {
 		}
 
 		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		fmt.Printf("User: %v, is login", claims.Dni) //Useful for monitoring
+		fmt.Printf("User: %v, is login", claims.ID) //Useful for monitoring
 		next(w, r, ps)
 	}
 }

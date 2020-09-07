@@ -29,8 +29,8 @@ func CreateMariaDB() {
 }
 
 //AddPerson add new person into mariadb
-func AddPerson(person *models.Person, c *gorm.DB) (int, error) {
-	tx := c.Begin()
+func AddPerson(person *models.Person) (int, error) {
+	tx := Client.Begin()
 
 	if err := tx.Error; err != nil {
 		tx.Rollback()
