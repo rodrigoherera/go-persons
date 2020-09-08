@@ -6,7 +6,6 @@ import (
 	"go-persons/db"
 	mid "go-persons/middleware"
 	"go-persons/models"
-	"go-persons/response"
 	resp "go-persons/response"
 	"io/ioutil"
 	"log"
@@ -23,47 +22,53 @@ func AddPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	var person models.Person
 	if r.Body == nil {
-		//asdsa
-		//exploto o retorno error
+		http.Error(w, "BODY es requerido", 400)
+		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		//algo
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	defer r.Body.Close()
 
 	err = json.Unmarshal(data, &person)
 	if err != nil {
-
+		http.Error(w, err.Error(), 500)
+		return
 	}
 
-	result, err := db.AddPerson(&person, db.Client)
+	result, err := db.AddPerson(&person)
 	if err != nil {
-
+		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	stringID := strconv.Itoa(int(person.ID))
-	if result == 201 {
-		resp.Set(w, stringID, 200).Return()
+	if result != 201 {
+		http.Error(w, err.Error(), 500)
 		return
 	}
-	resp.Set(w, "No se pudo insertar usuario", 500).Return()
+	resp.Set(w, stringID, 201).Return()
 }
 
 //GetPerson get a person by a giving IDE
 func GetPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	personID := p.ByName("id")
-	if personID != "" {
-		//algo
+	if personID == "" {
+		http.Error(w, "ID es requerido", 400)
+		return
 	}
 	person, err := db.GetPerson(personID)
 	if err != nil {
-
+		http.Error(w, err.Error(), 404)
+		return
 	}
 	personJSON, err := json.Marshal(person)
 	if err != nil {
-		//
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	resp.Set(w, string(personJSON), 200).Return()
 }
@@ -72,11 +77,13 @@ func GetPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 func GetAllPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	person, err := db.GetAllPerson()
 	if err != nil {
-
+		http.Error(w, err.Error(), 404)
+		return
 	}
 	personJSON, err := json.Marshal(person)
 	if err != nil {
-		//
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	resp.Set(w, string(personJSON), 200).Return()
 }
@@ -86,36 +93,41 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var newPerson models.Person
 
 	personID := p.ByName("id")
-	if personID != "" {
-		//algo
+	if personID == "" {
+		http.Error(w, "ID es requerido", 400)
+		return
 	}
 
 	if r.Body == nil {
-		//asdsa
-		//exploto o retorno error
+		http.Error(w, "BODY es requerido", 400)
+		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		//algo
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	defer r.Body.Close()
 
 	err = json.Unmarshal(data, &newPerson)
 	if err != nil {
-
+		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	person, err := db.GetPerson(personID)
 	if err != nil {
-
+		http.Error(w, err.Error(), 404)
+		return
 	}
 	result, err := db.UpdatePerson(person, newPerson, db.Client)
 	if err != nil {
-
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	if result != 200 {
-		resp.Set(w, "Error", 500).Return()
+		http.Error(w, err.Error(), 500)
 		return
 	}
 	resp.Set(w, "OK", 200).Return()
@@ -123,62 +135,50 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 //DeletePerson delete a person
 func DeletePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var newPerson models.Person
 
 	personID := p.ByName("id")
-	if personID != "" {
-		//algo
-	}
-
-	if r.Body == nil {
-		//asdsa
-		//exploto o retorno error
-	}
-
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		//algo
-	}
-	defer r.Body.Close()
-
-	err = json.Unmarshal(data, &newPerson)
-	if err != nil {
-
+	if personID == "" {
+		http.Error(w, "ID es requerido", 400)
+		return
 	}
 
 	person, err := db.GetPerson(personID)
 	if err != nil {
-
+		http.Error(w, err.Error(), 404)
+		return
 	}
 	result, err := db.DeletePerson(person, db.Client)
 	if err != nil {
-
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	if result != 200 {
-		resp.Set(w, "Error", 500).Return()
+		http.Error(w, err.Error(), 500)
 		return
 	}
 	resp.Set(w, "OK", 200).Return()
 }
 
-//Login asdsa
+//Login login a user
 func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	var creds models.Person
 
 	personID := p.ByName("id")
-	if personID != "" {
-		//algo
+	if personID == "" {
+		http.Error(w, "ID es requerido", 400)
+		return
 	}
 	idInt, err := strconv.Atoi(personID)
 	if err != nil {
-		//
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	creds = models.Person{ID: uint(idInt)}
 
-	expirationTime := time.Now().Add(12 * time.Hour)
+	expirationTime := time.Now().Add(15 * time.Minute)
 	claims := &mid.Claims{
-		ID: string(creds.ID),
+		ID: fmt.Sprint(creds.ID),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -188,7 +188,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	tokenString, err := token.SignedString(mid.JwtKey)
 	if err != nil {
-		response.Set(w, "El Token JWT es requerido!", 403).ReturnJSON()
+		http.Error(w, err.Error(), 500)
 		log.Printf("Internal server error, error: %v", err)
 		return
 	}
@@ -205,7 +205,8 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fmt.Printf("Token generated for User %v", claims.ID)
 	resStruct, err := json.Marshal(&result)
 	if err != nil {
-		//
+		http.Error(w, err.Error(), 500)
+		return
 	}
 	resp.Set(w, string(resStruct), http.StatusCreated).Return()
 }

@@ -3,10 +3,14 @@ package db
 import (
 	"fmt"
 	"go-persons/models"
+	"log"
+	"os"
 	"strconv"
+	"time"
 
 	//Mysql dialect from gorm pkg
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -17,15 +21,35 @@ var Client *gorm.DB
 //CreateMariaDB create a new instance
 func CreateMariaDB() {
 
-	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=Local", "root", "", "127.0.0.1", "3306", "persons_db")
-	conn, err := gorm.Open("mysql", DBURL)
-	if err != nil {
-		panic(err)
+	e := godotenv.Load()
+	if e != nil {
+		fmt.Print(e)
 	}
-	conn.SingularTable(true)
-	conn.Debug()
-	conn.LogMode(true)
-	Client = conn
+
+	DbUser := os.Getenv("DB_USER")
+	DbPassword := os.Getenv("DB_PASSWORD")
+	DbName := os.Getenv("DB_NAME")
+	DbHost := os.Getenv("DB_HOST")
+	DbPort := "3306"
+
+	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
+
+	retryCount := 30
+	for {
+		conn, err := gorm.Open("mysql", DBURL)
+		if err != nil {
+			log.Println(err)
+			retryCount--
+			time.Sleep(2 * time.Second)
+		} else {
+
+			conn.SingularTable(true)
+			conn.Debug()
+			conn.LogMode(true)
+			Client = conn
+			return
+		}
+	}
 }
 
 //AddPerson add new person into mariadb
@@ -34,6 +58,7 @@ func AddPerson(person *models.Person) (int, error) {
 
 	if err := tx.Error; err != nil {
 		tx.Rollback()
+		fmt.Println(err)
 		return 500, err
 	}
 
