@@ -14,6 +14,7 @@ func GetRouter() *httprouter.Router {
 	router := httprouter.New()
 
 	//TODO - add exception to the middleware
+	router.GET("/", ctrl.IndexControlller)
 	router.GET("/v1/login/:id", ctrl.Login)
 	router.POST("/v1/person", ctrl.AddPerson)
 

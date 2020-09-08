@@ -136,6 +136,7 @@ Se envía en el BODY los nuevos datos a updatear:
     "age": 44,
     "dni": 123456745
 }
+```
 
 Ejemplo de respuesta:
 
