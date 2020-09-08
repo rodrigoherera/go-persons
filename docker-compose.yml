@@ -19,7 +19,7 @@ services:
             context: ./dbfolder
         environment: 
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: person
+            MYSQL_DATABASE: persons_db
             MYSQL_USER: docker
             MYSQL_PASSWORD: docker
         ports: 

@@ -56,7 +56,7 @@ func AddPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 //GetPerson get a person by a giving IDE
 func GetPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	personID := p.ByName("id")
-	if personID != "" {
+	if personID == "" {
 		http.Error(w, "ID es requerido", 400)
 		return
 	}
@@ -93,7 +93,7 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var newPerson models.Person
 
 	personID := p.ByName("id")
-	if personID != "" {
+	if personID == "" {
 		http.Error(w, "ID es requerido", 400)
 		return
 	}
@@ -137,7 +137,7 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 func DeletePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	personID := p.ByName("id")
-	if personID != "" {
+	if personID == "" {
 		http.Error(w, "ID es requerido", 400)
 		return
 	}
@@ -165,7 +165,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var creds models.Person
 
 	personID := p.ByName("id")
-	if personID != "" {
+	if personID == "" {
 		http.Error(w, "ID es requerido", 400)
 		return
 	}
