@@ -5,10 +5,11 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 BINARY_NAME=person
 
-all: test build
-
 test:
-      $(GOTEST) ./... -v
+		$(GOTEST) ./... -v
 
 build:
-      $(GOBUILD) -o $(BINARY_NAME) -v
+		$(GOBUILD) -o $(BINARY_NAME) -v
+
+lint:
+		$(LINTER) run
