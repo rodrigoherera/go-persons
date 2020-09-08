@@ -14,7 +14,7 @@ services:
         depends_on: 
             - db
     db:
-        container_name: person_db
+        container_name: persons_db
         build:
             context: ./dbfolder
         environment: 
