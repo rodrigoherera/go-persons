@@ -1,0 +1,16 @@
+language: go
+
+service:
+    - docker
+go:
+    - 1.x
+
+script:
+    - make test
+    - docker build -t rodrigoherera/go-persons .
+
+deploy:
+    provider: script
+    script: bash .docker_push
+    on:
+        branch: master

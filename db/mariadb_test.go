@@ -1,11 +1,6 @@
 package db
 
 import (
-	"go-persons/models"
-	"reflect"
-	"testing"
-
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -13,7 +8,7 @@ var (
 	PERSONTABLE = "person"
 )
 
-func TestAddPerson(t *testing.T) {
+/* func TestAddPerson(t *testing.T) {
 	type args struct {
 		person *models.Person
 		c      *gorm.DB
@@ -174,4 +169,4 @@ func TestDeletePerson(t *testing.T) {
 			}
 		})
 	}
-}
+} */

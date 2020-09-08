@@ -1,18 +1,11 @@
 package controller
 
 import (
-	"bytes"
-	"encoding/json"
 	"go-persons/db"
-	"go-persons/models"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/julienschmidt/httprouter"
 )
 
 var (
@@ -32,7 +25,7 @@ func mockDb() {
 	db.Client = conn
 }
 
-func TestAddPerson(t *testing.T) {
+/* func TestAddPerson(t *testing.T) {
 	type args struct {
 		w http.ResponseWriter
 		r *http.Request
@@ -79,4 +72,4 @@ func TestAddPerson(t *testing.T) {
 			}
 		})
 	}
-}
+} */
