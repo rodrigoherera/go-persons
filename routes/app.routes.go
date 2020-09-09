@@ -17,7 +17,6 @@ func GetRouter() *nrhttprouter.Router {
 	app, err := newrelic.NewApplication(
 		newrelic.ConfigAppName("httprouter App"),
 		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
-		newrelic.ConfigDebugLogger(os.Stdout),
 	)
 
 	if err != nil {
