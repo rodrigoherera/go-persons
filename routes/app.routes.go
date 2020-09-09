@@ -3,15 +3,27 @@ package routes
 import (
 	ctrl "go-persons/controller"
 	"go-persons/middleware"
+	"os"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/newrelic/go-agent/v3/integrations/nrhttprouter"
+	newrelic "github.com/newrelic/go-agent/v3/newrelic"
 )
 
 // GetRouter returns a composed router
-func GetRouter() *httprouter.Router {
+func GetRouter() *nrhttprouter.Router {
 
 	MDLW := middleware.Chain(middleware.JwtAuthentication, middleware.CORS, middleware.JSONHeader)
-	router := httprouter.New()
+
+	app, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("httprouter App"),
+		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	router := nrhttprouter.New(app)
 
 	//TODO - add exception to the middleware
 	router.GET("/", ctrl.IndexControlller)
