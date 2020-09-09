@@ -8,4 +8,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/newrelic/go-agent v3.9.0+incompatible // indirect
+	github.com/newrelic/go-agent/v3 v3.9.0
+	github.com/newrelic/go-agent/v3/integrations/nrhttprouter v1.0.0
 )
