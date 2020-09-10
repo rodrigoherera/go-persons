@@ -1,30 +1,20 @@
 package routes
 
 import (
-	"os"
 	"reflect"
 	"testing"
 
-	"github.com/newrelic/go-agent/v3/integrations/nrhttprouter"
-	newrelic "github.com/newrelic/go-agent/v3/newrelic"
+	"github.com/julienschmidt/httprouter"
 )
 
 func TestGetRouter(t *testing.T) {
-	app, err := newrelic.NewApplication(
-		newrelic.ConfigAppName("httprouter App"),
-		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
-		newrelic.ConfigDebugLogger(os.Stdout),
-	)
-	if err != nil {
-		panic(err)
-	}
 	tests := []struct {
 		name string
-		want *nrhttprouter.Router
+		want *httprouter.Router
 	}{
 		{
 			name: "Get Router",
-			want: nrhttprouter.New(app),
+			want: httprouter.New(),
 		},
 	}
 	for _, tt := range tests {
