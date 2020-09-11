@@ -75,6 +75,28 @@ func AddPerson(person *models.Person) (int, error) {
 	return 201, nil
 }
 
+//AddUser add new user into mariadb
+func AddUser(user *models.User) (int, error) {
+	tx := Client.Begin()
+
+	if err := tx.Error; err != nil {
+		tx.Rollback()
+		return 500, err
+	}
+
+	err := tx.Create(user).Error
+	if err != nil {
+		tx.Rollback()
+		return 500, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return 500, err
+	}
+	return 201, nil
+}
+
 //GetPerson get a existing person
 func GetPerson(id string) (models.Person, error) {
 	var p models.Person
@@ -150,4 +172,18 @@ func DeletePerson(person models.Person, c *gorm.DB) (int, error) {
 		return 500, err
 	}
 	return 200, nil
+}
+
+//CheckUserExistence check if a user exists
+func CheckUserExistence(u *models.User) (bool, error) {
+
+	err := Client.Select("id, password").Model(&models.User{}).Where("email = ?", u.Email).Find(&u).Error
+
+	if err != nil {
+		return false, err
+	}
+	if u.ID == 0 {
+		return false, nil
+	}
+	return true, nil
 }
