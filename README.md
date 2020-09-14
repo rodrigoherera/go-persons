@@ -4,8 +4,6 @@
 
 ## GET
 
-WIP
-
 ```cmd
 /
 ```
@@ -22,16 +20,19 @@ Ejemplo de respuesta:
 -------------------------------------------------------
 
 ```cmd
-/v1/login/:id
+/v1/login
 ```
+
+Se envía con un Basic Auth, previo creado el usuario con email y password.
 
 Ejemplo de respuesta:
 
 ```golang
 {
-    "Name": "token",
-    "Value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgiLCJleHAiOjE1OTk1NzM5ODJ9.yDGxeuuRCc2SfnDRCYfD68pFFH1ndSN7zDH04PdeLcM",
-    "Expires": "2020-09-08 14:06:22.3582725 +0000 UTC m=+980.435677301"
+    "Email": "test@test.com",
+    "Name": "Bearer token",
+    "Value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJvZHJpZ28uaGVyZXJhQG1lcmNhZG9saWJyZS5jb20iLCJleHAiOjE2MDAwOTI0NDN9.bP3f-sRhF2Dse-fCKrUnxJW4kKfDfjli3cTGM6Qs0kI",
+    "Expires": "2020-09-14 11:07:23.294109 -0300 -03 m=+4117.806553302"
 }
 ```
 
@@ -83,6 +84,32 @@ Ejemplo de respuesta:
 ## POST
 
 ```cmd
+/v1/user
+```
+
+Se envía en el BODY del user a crear:
+
+```golang
+{
+    "email": "test@gmail.com",
+    "password": "Test3!sd_",
+}
+```
+
+Retorna el ID y el email que se guardó del user.
+
+Ejemplo de respuesta:
+
+```golang
+{
+    "id": "3",
+    "email": "test@test.com"
+}
+```
+
+-------------------------------------------------------
+
+```cmd
 /v1/person
 ```
 
@@ -97,12 +124,18 @@ Se envía en el BODY la persona a crear:
 }
 ```
 
-Retorna el ID del nuevo POST.
+Retorna la nueva persona creada.
 
 Ejemplo de respuesta:
 
 ```golang
-8
+{
+    "ID": 10,
+    "name": "Test 2",
+    "lastname": "Test 3",
+    "age": 44,
+    "dni": 123456745
+}
 ```
 
 -------------------------------------------------------
