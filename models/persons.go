@@ -12,3 +12,7 @@ type Person struct {
 	CreatedAt   time.Time `json:"-" gorm:"column:created_at"`
 	ProcessedAt time.Time `json:"-" gorm:"column:processed_at"`
 }
+
+func (p *Person) tableName() string {
+	return "person"
+}

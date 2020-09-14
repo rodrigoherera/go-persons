@@ -2,18 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-persons/db"
-	mid "go-persons/middleware"
 	"go-persons/models"
 	resp "go-persons/response"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"strconv"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -45,12 +39,17 @@ func AddPerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	stringID := strconv.Itoa(int(person.ID))
 	if result != 201 {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	resp.Set(w, stringID, 201).Return()
+
+	personByte, err := json.Marshal(person)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	resp.Set(w, string(personByte), 201).Return()
 }
 
 //GetPerson get a person by a giving IDE
@@ -157,56 +156,4 @@ func DeletePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	resp.Set(w, "OK", 200).Return()
-}
-
-//Login login a user
-func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-
-	var creds models.Person
-
-	personID := p.ByName("id")
-	if personID == "" {
-		http.Error(w, "ID es requerido", 400)
-		return
-	}
-	idInt, err := strconv.Atoi(personID)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	creds = models.Person{ID: uint(idInt)}
-
-	expirationTime := time.Now().Add(15 * time.Minute)
-	claims := &mid.Claims{
-		ID: fmt.Sprint(creds.ID),
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	tokenString, err := token.SignedString(mid.JwtKey)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		log.Printf("Internal server error, error: %v", err)
-		return
-	}
-
-	result := struct {
-		Name    string
-		Value   string
-		Expires string
-	}{
-		Name:    "token",
-		Value:   tokenString,
-		Expires: expirationTime.String(),
-	}
-	fmt.Printf("Token generated for User %v", claims.ID)
-	resStruct, err := json.Marshal(&result)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	resp.Set(w, string(resStruct), http.StatusCreated).Return()
 }
