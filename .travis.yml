@@ -8,6 +8,7 @@ before_install:
     - go get -t -v ./...
 
 script:
+    - make vet
     - make test
     - make cover
     

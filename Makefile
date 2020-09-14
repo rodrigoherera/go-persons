@@ -11,7 +11,7 @@ test:
 build:
 		$(GOBUILD) -o $(BINARY_NAME) -v
 
-lint:
-		$(LINTER) run
+vet:
+		$(GOCMD) vet
 cover: 
 		$(GOTEST) ./... -race -coverprofile=coverage.txt -covermode=atomic
