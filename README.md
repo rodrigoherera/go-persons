@@ -4,6 +4,8 @@
 
 ## GET
 
+Endpoint:
+
 ```cmd
 /
 ```
@@ -18,6 +20,8 @@ Ejemplo de respuesta:
 ```
 
 -------------------------------------------------------
+
+Endpoint:
 
 ```cmd
 /v1/login
@@ -38,9 +42,13 @@ Ejemplo de respuesta:
 
 -------------------------------------------------------
 
+Endpoint:
+
 ```cmd
 /v1/person
 ```
+
+Ejemplo de respuesta:
 
 ```golang
 [
@@ -63,6 +71,8 @@ Ejemplo de respuesta:
 
 -------------------------------------------------------
 
+Endpoint:
+
 ```cmd
 /v1/person/:id
 ```
@@ -83,6 +93,8 @@ Ejemplo de respuesta:
 
 ## POST
 
+Endpoint :
+
 ```cmd
 /v1/user
 ```
@@ -98,8 +110,6 @@ Se envía en el BODY del user a crear:
 
 Retorna el ID y el email que se guardó del user.
 
-Ejemplo de respuesta:
-
 ```golang
 {
     "id": "3",
@@ -108,6 +118,8 @@ Ejemplo de respuesta:
 ```
 
 -------------------------------------------------------
+
+Endpoint:
 
 ```cmd
 /v1/person
@@ -142,6 +154,8 @@ Ejemplo de respuesta:
 
 ## DELETE
 
+Endpoint:
+
 ```cmd
 /v1/person/:id
 ```
@@ -155,6 +169,8 @@ OK
 -------------------------------------------------------
 
 ## PUT
+
+Endpoint:
 
 ```cmd
 /v1/person/:id
