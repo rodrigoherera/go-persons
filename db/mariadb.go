@@ -58,7 +58,6 @@ func AddPerson(person *models.Person) (int, error) {
 
 	if err := tx.Error; err != nil {
 		tx.Rollback()
-		fmt.Println(err)
 		return 500, err
 	}
 
