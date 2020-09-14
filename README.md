@@ -1,5 +1,8 @@
 # Person API
 
+[![Build Status](https://travis-ci.org/rodrigoherera/go-persons.svg)](https://travis-ci.org/rodrigoherera/go-persons)
+[![codecov.io](https://codecov.io/gh/rodrigoherera/go-persons/branch/master/graph/badge.svg)](https://codecov.io/gh/rodrigoherera/go-persons)
+
 ## REST Endpoints
 
 ## GET
