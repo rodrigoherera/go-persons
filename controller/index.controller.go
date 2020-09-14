@@ -11,7 +11,7 @@ const (
 	//AppName project name
 	AppName = "Person API"
 	//AppVersion Project version
-	AppVersion = "1.1"
+	AppVersion = "1.2"
 )
 
 //IndexControlller index controller

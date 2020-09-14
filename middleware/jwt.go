@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"go-persons/models"
 	"go-persons/response"
 	"log"
 	"net/http"
@@ -13,16 +14,11 @@ import (
 
 var JwtKey = []byte("6B833C42246DA36D0DCC912DE9220DE4F6DD146321639B59AC4D1B9BD226A228")
 
-type Claims struct {
-	ID string `json:"id"`
-	jwt.StandardClaims
-}
-
 //JwtAuthentication validate the jwt for the incoming request
 func JwtAuthentication(next httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-		notAuth := []string{"/v1/login/:id"}
+		notAuth := []string{"/v1/login", "/v1/user", "/"}
 		requestPath := r.URL.Path
 
 		//check if request does not need authentication, serve the request if it doesn't need it
@@ -43,7 +39,7 @@ func JwtAuthentication(next httprouter.Handle) httprouter.Handle {
 
 		tknStr := strings.TrimPrefix(c, "Bearer ")
 
-		claims := &Claims{}
+		claims := &models.UserClaim{}
 
 		tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return JwtKey, nil
@@ -51,22 +47,22 @@ func JwtAuthentication(next httprouter.Handle) httprouter.Handle {
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
 				// For any other type of error, return a bad request status
-				response.Set(w, "El Token JWT es requerido!", 403).ReturnJSON()
-				log.Printf("Unauthorized Request, error: %v", err)
+				response.Set(w, err.Error(), 400).ReturnJSON()
+				log.Printf("JWT - Bad Request, error: %v", err)
 				return
 			}
-			response.Set(w, "El Token JWT es requerido!", 403).ReturnJSON()
+			response.Set(w, err.Error(), 400).ReturnJSON()
 			log.Println("JWT expired - Has to renew de JWT")
 			return
 		}
 		if !tkn.Valid {
-			response.Set(w, "El Token JWT es requerido!", 403).ReturnJSON()
+			response.Set(w, "Token no valido", 403).ReturnJSON()
 			log.Printf("Unauthorized Request, token no valid")
 			return
 		}
 
 		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		fmt.Printf("User: %v, is login", claims.ID) //Useful for monitoring
+		fmt.Printf("User: %v, is login ", claims.Email) //Useful for monitoring
 		next(w, r, ps)
 	}
 }
