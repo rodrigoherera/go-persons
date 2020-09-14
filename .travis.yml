@@ -2,6 +2,14 @@ language: go
 
 go:
     - 1.x
+    - tip
+
+before_install:
+    - go get -t -v ./...
 
 script:
     - make test
+    - make cover
+    
+after_success:
+    - bash <(curl -s https://codecov.io/bash)

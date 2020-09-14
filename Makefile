@@ -13,3 +13,5 @@ build:
 
 lint:
 		$(LINTER) run
+cover: 
+		$(GOTEST) ./... -race -coverprofile=coverage.txt -covermode=atomic
