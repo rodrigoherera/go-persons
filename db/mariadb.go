@@ -101,7 +101,7 @@ func GetPerson(id string) (models.Person, error) {
 	var p models.Person
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		//
+		return p, err
 	}
 	err = Client.Select("id, name, lastname, age, dni").Model(&models.Person{}).Where("id = ?", idInt).Find(&p).Error
 
@@ -124,8 +124,8 @@ func GetAllPerson() ([]models.Person, error) {
 }
 
 //UpdatePerson update a person
-func UpdatePerson(person models.Person, newPerson models.Person, c *gorm.DB) (int, error) {
-	tx := c.Begin()
+func UpdatePerson(person models.Person, newPerson models.Person) (int, error) {
+	tx := Client.Begin()
 
 	if err := tx.Error; err != nil {
 		tx.Rollback()
@@ -152,8 +152,8 @@ func UpdatePerson(person models.Person, newPerson models.Person, c *gorm.DB) (in
 }
 
 //DeletePerson delete a person
-func DeletePerson(person models.Person, c *gorm.DB) (int, error) {
-	tx := c.Begin()
+func DeletePerson(person models.Person) (int, error) {
+	tx := Client.Begin()
 
 	if err := tx.Error; err != nil {
 		tx.Rollback()

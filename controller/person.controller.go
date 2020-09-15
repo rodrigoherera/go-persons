@@ -120,7 +120,7 @@ func UpdatePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		http.Error(w, err.Error(), 404)
 		return
 	}
-	result, err := db.UpdatePerson(person, newPerson, db.Client)
+	result, err := db.UpdatePerson(person, newPerson)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -146,7 +146,7 @@ func DeletePerson(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		http.Error(w, err.Error(), 404)
 		return
 	}
-	result, err := db.DeletePerson(person, db.Client)
+	result, err := db.DeletePerson(person)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

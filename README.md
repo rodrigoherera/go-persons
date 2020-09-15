@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/rodrigoherera/go-persons.svg)](https://travis-ci.org/rodrigoherera/go-persons)
 [![codecov.io](https://codecov.io/gh/rodrigoherera/go-persons/branch/master/graph/badge.svg)](https://codecov.io/gh/rodrigoherera/go-persons)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rodrigoherera_go-persons&metric=alert_status)](https://sonarcloud.io/dashboard?id=rodrigoherera_go-persons)
 
 ## REST Endpoints
 
