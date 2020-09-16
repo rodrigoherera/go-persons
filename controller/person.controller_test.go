@@ -104,10 +104,33 @@ func TestAddPerson(t *testing.T) {
 			query:    "INSERT INTO `people`",
 			expected: http.StatusCreated,
 		},
+		{
+			name:     "ADD PERSON - WITHOUT BODY",
+			route:    ADDPERSONROUTE,
+			method:   "POST",
+			query:    "INSERT INTO `people`",
+			expected: http.StatusBadRequest,
+		},
+		{
+			name:     "ADD PERSON - BAD BODY",
+			route:    ADDPERSONROUTE,
+			method:   "POST",
+			query:    "INSERT INTO `people`",
+			expected: http.StatusInternalServerError,
+		},
+		{
+			name:     "ADD PERSON - NOT PERSON BODY",
+			route:    ADDPERSONROUTE,
+			method:   "POST",
+			query:    "INSERT INTO `people`",
+			expected: http.StatusInternalServerError,
+		},
 	}
 	mock = mockDb()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			var req *http.Request
+
 			person := models.Person{
 				Name:        "Test",
 				LastName:    "Test",
@@ -120,10 +143,28 @@ func TestAddPerson(t *testing.T) {
 			if err != nil {
 				panic(err)
 			}
-			req, err := http.NewRequest(tt.method, tt.route, bytes.NewBuffer(requestBody))
-			if err != nil {
-				t.Fatal(err)
+			if tt.name == "ADD PERSON - WITHOUT BODY" {
+				req, err = http.NewRequest(tt.method, tt.route, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				if tt.name == "ADD PERSON - BAD BODY" {
+					requestBody = []byte{}
+				}
+				if tt.name == "ADD PERSON - NOT PERSON BODY" {
+					u := models.User{ID: 1}
+					requestBody, err = json.Marshal(u)
+					if err != nil {
+						panic(err)
+					}
+				}
+				req, err = http.NewRequest(tt.method, tt.route, bytes.NewBuffer(requestBody))
+				if err != nil {
+					t.Fatal(err)
+				}
 			}
+
 			rr := httptest.NewRecorder()
 			router := httprouter.New()
 
@@ -201,29 +242,31 @@ func TestGetAllPerson(t *testing.T) {
 	}
 }
 
-/* func TestUpdatePerson(t *testing.T) {
+func TestUpdatePerson(t *testing.T) {
 	var mock sqlmock.Sqlmock
 
 	tests := []struct {
-		name     string
-		route    string
-		method   string
-		query    string
-		expected int
-		args     bool
+		name        string
+		route       string
+		method      string
+		querySelect string
+		queryUpdate string
+		expected    int
+		args        bool
 	}{
 		{
-			name:     "UPDATE PERSON",
-			route:    UPDATEPERSONROUTE,
-			method:   "PUT",
-			query:    "UPDATE `people` SET `name` = ?, `lastname` = ?, `age` = ?, `dni` = ?, `processed_at` = ? WHERE `people`.`id` = ?'",
-			args:     true,
-			expected: http.StatusOK,
+			name:        "UPDATE PERSON",
+			route:       UPDATEPERSONROUTE,
+			method:      "PUT",
+			querySelect: "SELECT * FROM `people` WHERE `people`.`id` = ? ORDER BY `people`.`id` ASC LIMIT 1",
+			queryUpdate: "UPDATE `people` SET `name` = ?, `lastname` = ?, `age` = ?, `dni` = ?, `processed_at` = ? WHERE `people`.`id` = ?",
+			args:        true,
+			expected:    http.StatusOK,
 		},
 	}
-	mock = mockDb()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			mock = mockDb()
 			person := models.Person{
 				Name:        "Test",
 				LastName:    "Test",
@@ -248,20 +291,23 @@ func TestGetAllPerson(t *testing.T) {
 					NewRows([]string{"id", "name", "lastname", "age", "dni"}).
 					AddRow(p.ID, p.Name, p.LastName, p.Age, p.Dni)
 
+				rows2 := sqlmock.
+					NewRows([]string{"id"}).
+					AddRow(p.ID)
+
 				mock.ExpectQuery(regexp.QuoteMeta("SELECT id, name, lastname, age, dni FROM `people` WHERE (id = ?)")).
 					WithArgs(p.ID).WillReturnRows(rows)
 
 				mock.ExpectBegin()
 
-				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `people` WHERE `people.id` = ? ORDER BY `people`.`id` ASC LIMIT 1")).
-					WithArgs(0).WillReturnRows(sqlmock.NewRows(nil))
+				mock.ExpectQuery(regexp.QuoteMeta(tt.querySelect)).
+					WillReturnRows(rows2)
 
-				mock.ExpectExec(tt.query).
-					WithArgs(p.Name, p.LastName, p.Age, p.Dni, sqlmock.AnyArg(), p.ID).
+				mock.ExpectExec(regexp.QuoteMeta(tt.queryUpdate)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			} else {
-				mock.ExpectQuery(regexp.QuoteMeta(tt.query)).
+				mock.ExpectQuery(regexp.QuoteMeta(tt.queryUpdate)).
 					WithArgs(1).
 					WillReturnRows(sqlmock.NewRows(nil))
 			}
@@ -272,7 +318,7 @@ func TestGetAllPerson(t *testing.T) {
 			}
 		})
 	}
-} */
+}
 
 func mockDb() sqlmock.Sqlmock {
 	mockConn, mock, err := sqlmock.New()
