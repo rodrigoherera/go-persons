@@ -488,3 +488,222 @@ func TestDeletePerson(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckUserExistence(t *testing.T) {
+	type args struct {
+		u *models.User
+	}
+	tests := []struct {
+		name    string
+		query   string
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		{
+			name:    "Check User Existence",
+			query:   "SELECT id, password FROM `users` WHERE `users`.`id` = ? AND ((email = ?))",
+			args:    args{u: &models.User{ID: 1, Email: "test@test.com", Password: "12345678"}},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:    "Check User Existence - SELECT ERROR",
+			query:   "SELECT id, password FROM `users` WHERE `users`.`id` = ? AND ((email = ?))",
+			args:    args{u: &models.User{ID: 1, Email: "test@test.com", Password: "12345678"}},
+			want:    false,
+			wantErr: true,
+		},
+		{
+			name:    "Check User Existence - ID ERROR",
+			query:   "SELECT id, password FROM `users` WHERE (email = ?)",
+			args:    args{u: &models.User{ID: 0, Email: "test@test.com", Password: "12345678"}},
+			want:    false,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := mockDb()
+
+			rows := sqlmock.
+				NewRows([]string{"id", "password"}).
+				AddRow(tt.args.u.ID, tt.args.u.Password)
+
+			if tt.name == "Check User Existence - ID ERROR" {
+				mock.ExpectQuery(regexp.QuoteMeta(tt.query)).
+					WithArgs(tt.args.u.Email).WillReturnRows(rows)
+			} else {
+				mock.ExpectQuery(regexp.QuoteMeta(tt.query)).
+					WithArgs(tt.args.u.ID, tt.args.u.Email).WillReturnRows(rows)
+			}
+
+			if tt.name == "Check User Existence - SELECT ERROR" {
+				Client.Close()
+			}
+
+			got, err := CheckUserExistence(tt.args.u)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CheckUserExistence() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("CheckUserExistence() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUpdatePerson(t *testing.T) {
+	type args struct {
+		person    models.Person
+		newPerson models.Person
+	}
+	tests := []struct {
+		name        string
+		querySelect string
+		queryUpdate string
+		args        args
+		want        int
+		wantErr     bool
+	}{
+		{
+			name:        "Update Person",
+			querySelect: "SELECT * FROM `people` ORDER BY `people`.`id` ASC LIMIT 1",
+			queryUpdate: "INSERT INTO `people` (`name`,`lastname`,`age`,`dni`,`created_at`,`processed_at`) VALUES (?,?,?,?,?,?)",
+			args: args{
+				person: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+				newPerson: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+			},
+			want:    200,
+			wantErr: false,
+		},
+		{
+			name:        "Update Person - BEGIN ERROR",
+			querySelect: "SELECT * FROM `people` ORDER BY `people`.`id` ASC LIMIT 1",
+			queryUpdate: "INSERT INTO `people` (`name`,`lastname`,`age`,`dni`,`created_at`,`processed_at`) VALUES (?,?,?,?,?,?)",
+			args: args{
+				person: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+				newPerson: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+			},
+			want:    500,
+			wantErr: true,
+		},
+		{
+			name:        "Update Person - SAVE ERROR",
+			querySelect: "SELECT * FROM `people` ORDER BY `people`.`id` ASC LIMIT 1",
+			queryUpdate: "INSERT INTO `people` (`name`,`lastname`,`age`,`dni`,`created_at`,`processed_at`) VALUES (?,?,?,?,?,?)",
+			args: args{
+				person: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+				newPerson: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+			},
+			want:    500,
+			wantErr: true,
+		},
+		{
+			name:        "Update Person - COMMIT ERROR",
+			querySelect: "SELECT * FROM `people` ORDER BY `people`.`id` ASC LIMIT 1",
+			queryUpdate: "INSERT INTO `people` (`name`,`lastname`,`age`,`dni`,`created_at`,`processed_at`) VALUES (?,?,?,?,?,?)",
+			args: args{
+				person: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+				newPerson: models.Person{
+					Name:        "Test",
+					LastName:    "Test",
+					Age:         20,
+					Dni:         1234567,
+					CreatedAt:   time.Now(),
+					ProcessedAt: time.Now(),
+				},
+			},
+			want:    500,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := mockDb()
+			rows := sqlmock.
+				NewRows([]string{"id"}).
+				AddRow(tt.args.newPerson.ID)
+
+			if tt.name != "Update Person - BEGIN ERROR" {
+				mock.ExpectBegin()
+			}
+			mock.ExpectQuery(regexp.QuoteMeta(tt.querySelect)).
+				WillReturnRows(rows)
+
+			if tt.name == "Update Person - SAVE ERROR" {
+				mock.ExpectExec(regexp.QuoteMeta(tt.queryUpdate)).
+					WithArgs(sqlmock.AnyArg()).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			} else {
+				mock.ExpectExec(regexp.QuoteMeta(tt.queryUpdate)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			}
+
+			if tt.name != "Update Person - COMMIT ERROR" {
+				mock.ExpectCommit()
+			} else {
+				mock.ExpectRollback()
+			}
+
+			got, err := UpdatePerson(tt.args.person, tt.args.newPerson)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdatePerson() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("UpdatePerson() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
