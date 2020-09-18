@@ -130,10 +130,10 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 
 	resultJSON := struct {
-		Email   string
-		Name    string
-		Value   string
-		Expires string
+		Email   string `json:"email"`
+		Name    string `json:"name"`
+		Value   string `json:"value"`
+		Expires string `json:"expires"`
 	}{
 		Email:   u.Email,
 		Name:    "Bearer token",

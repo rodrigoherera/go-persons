@@ -15,10 +15,10 @@ func GetRouter() *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/", MDLW(ctrl.IndexControlller))
-	router.GET("/v1/login", MDLW(ctrl.Login))
 	router.GET("/v1/person", MDLW(ctrl.GetAllPerson))
 	router.GET("/v1/person/:id", MDLW(ctrl.GetPerson))
 
+	router.POST("/v1/login", MDLW(ctrl.Login))
 	router.POST("/v1/user", MDLW(ctrl.AddUser))
 	router.POST("/v1/person", MDLW(ctrl.AddPerson))
 

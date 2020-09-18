@@ -28,27 +28,6 @@ Ejemplo de respuesta:
 Endpoint:
 
 ```cmd
-/v1/login
-```
-
-Se envía con un Basic Auth, previo creado el usuario con email y password.
-
-Ejemplo de respuesta:
-
-```golang
-{
-    "Email": "test@test.com",
-    "Name": "Bearer token",
-    "Value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJvZHJpZ28uaGVyZXJhQG1lcmNhZG9saWJyZS5jb20iLCJleHAiOjE2MDAwOTI0NDN9.bP3f-sRhF2Dse-fCKrUnxJW4kKfDfjli3cTGM6Qs0kI",
-    "Expires": "2020-09-14 11:07:23.294109 -0300 -03 m=+4117.806553302"
-}
-```
-
--------------------------------------------------------
-
-Endpoint:
-
-```cmd
 /v1/person
 ```
 
@@ -118,6 +97,27 @@ Retorna el ID y el email que se guardó del user.
 {
     "id": "3",
     "email": "test@test.com"
+}
+```
+
+-------------------------------------------------------
+
+Endpoint:
+
+```cmd
+/v1/login
+```
+
+Se envía con un Basic Auth, previo creado el usuario con email y password.
+
+Ejemplo de respuesta:
+
+```golang
+{
+    "Email": "test@test.com",
+    "Name": "Bearer token",
+    "Value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJvZHJpZ28uaGVyZXJhQG1lcmNhZG9saWJyZS5jb20iLCJleHAiOjE2MDAwOTI0NDN9.bP3f-sRhF2Dse-fCKrUnxJW4kKfDfjli3cTGM6Qs0kI",
+    "Expires": "2020-09-14 11:07:23.294109 -0300 -03 m=+4117.806553302"
 }
 ```
 

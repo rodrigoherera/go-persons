@@ -83,7 +83,7 @@ func TestLogin(t *testing.T) {
 		{
 			name:     "LOGIN",
 			route:    LOGINROUTE,
-			method:   "GET",
+			method:   "POST",
 			query:    "SELECT id, password FROM `users` WHERE (email = ?)",
 			expected: http.StatusCreated,
 		},
@@ -116,7 +116,7 @@ func TestLogin(t *testing.T) {
 			mock.ExpectQuery(regexp.QuoteMeta(tt.query)).
 				WithArgs(user.Email).WillReturnRows(rows)
 
-			router.GET(tt.route, Login)
+			router.POST(tt.route, Login)
 			router.ServeHTTP(rr, req)
 			if status := rr.Code; status != tt.expected {
 				t.Errorf("Wrong status %v", status)
