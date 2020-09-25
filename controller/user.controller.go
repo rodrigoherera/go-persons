@@ -8,7 +8,6 @@ import (
 	"go-persons/models"
 	resp "go-persons/response"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -24,26 +23,36 @@ func AddUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var user models.User
 
 	if r.Body == nil {
-		http.Error(w, "BODY es requerido", 400)
+		resp.Set(w, "Body required", 400).Return()
 		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 	defer r.Body.Close()
 
 	err = json.Unmarshal(data, &user)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
+		return
+	}
+
+	if !strings.Contains(user.Email, "@") {
+		resp.Set(w, "Invalid email format", 500).Return()
+		return
+	}
+
+	if len(user.Password) < 0 {
+		resp.Set(w, "Password required", 400).Return()
 		return
 	}
 
 	hashedPassword, err := models.GenerateHashPassword(user.Password)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 
@@ -51,13 +60,13 @@ func AddUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	result, err := db.AddUser(&user)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 
 	stringID := strconv.Itoa(int(user.ID))
 	if result != 201 {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 
@@ -70,7 +79,7 @@ func AddUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 	userByte, err := json.Marshal(userJSON)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 	resp.Set(w, string(userByte), 201).Return()
@@ -81,34 +90,35 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	email, pass, ok := r.BasicAuth()
 	if !ok {
-		http.Error(w, "Basic Auth requerida", 400)
+		resp.Set(w, "Basic Auth requerida", 400).Return()
+		return
 	}
 	if !strings.Contains(email, "@") {
-		http.Error(w, "Emal invalido", 400)
+		resp.Set(w, "Invalid email format", 400).Return()
 		return
 	}
 
 	if len(pass) < 0 {
-		http.Error(w, "Password requerida", 400)
+		resp.Set(w, "Password required", 400).Return()
 		return
 	}
 
 	u := models.User{Email: email}
 
 	result, err := db.CheckUserExistence(&u)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
+	if err != nil && err.Error() != "record not found" {
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 
 	if !result {
-		http.Error(w, err.Error(), 404)
+		resp.Set(w, "User not found, email or password invalid", 404).Return()
 		return
 	}
 
 	equalPass := models.CompareHashPasswords(pass, u.Password)
 	if !equalPass {
-		http.Error(w, "Password incorrecta", 404)
+		resp.Set(w, "User not found, email or password invalid", 404).Return()
 		return
 	}
 
@@ -124,8 +134,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	tokenString, err := token.SignedString(mid.JwtKey)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		log.Printf("Internal server error, error: %v", err)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 
@@ -144,7 +153,7 @@ func Login(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	resStruct, err := json.Marshal(&resultJSON)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		resp.Set(w, err.Error(), 500).Return()
 		return
 	}
 	resp.Set(w, string(resStruct), http.StatusCreated).Return()
